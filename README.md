@@ -1,6 +1,6 @@
 <div align="center">
 
-# A1111 Stable Diffusion | RunPod Serverless Worker
+# A1111 Stable Diffusion | RunPod Serverless Worker - T
 
 This is the source code for a [RunPod](https://runpod.io?ref=2xxro4sy)
 Serverless worker that uses the [Automatic1111 Stable Diffusion API](
