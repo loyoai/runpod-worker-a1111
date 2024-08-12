@@ -176,6 +176,123 @@ def sync(job):
 # ---------------------------------------------------------------------------- #
 #                                RunPod Handler                                #
 # ---------------------------------------------------------------------------- #
+
+def send_warmup_request():
+    warmup_payload = {
+        "input": {
+            "api": {
+                "method": "POST",
+                "endpoint": "sdapi/v1/img2img",
+            },
+            "payload": {
+                "alwayson_scripts": {
+                    "Soft Inpainting": {
+                        "args": [True, 1, 0.5, 4, 0, 0.5, 2]
+                    },
+                    "controlnet": {
+                        "args": [
+                            {
+                                "advanced_weighting": None,
+                                "batch_images": "",
+                                "control_mode": "Balanced",
+                                "enabled": True,
+                                "guidance_end": 0.7,
+                                "guidance_start": 0,
+                                "hr_option": "Both",
+                                "image": [
+                                        {"image":"https://iomzilgmkxhrgzkzmntc.supabase.co/storage/v1/object/public/generated/ef5dcd1f-a3c2-4f04-985c-06badf173b2d.png"},
+                                        {"image":"https://iomzilgmkxhrgzkzmntc.supabase.co/storage/v1/object/public/generated/4f24942a-bccb-48e3-9b0b-74ae0cd20989.png"},
+                                        {"image":"https://iomzilgmkxhrgzkzmntc.supabase.co/storage/v1/object/public/generated/71fcfa3c-be6e-4751-b107-9fa4b1b2e4af.png"}
+                                    ],
+                                "inpaint_crop_input_image": True,
+                                "input_mode": "merge",
+                                "ipadapter_input": None,
+                                "is_ui": True,
+                                "loopback": False,
+                                "low_vram": False,
+                                "model": "ip-adapter-faceid-plusv2_sdxl [187cb962]",
+                                "module": "ip-adapter_face_id_plus",
+                                "output_dir": "",
+                                "pixel_perfect": True,
+                                "processor_res": 512,
+                                "resize_mode": "Crop and Resize",
+                                "save_detected_map": True,
+                                "threshold_a": 0.5,
+                                "threshold_b": 0.5,
+                                "weight": 1.89
+                            },
+                        ],
+                    },
+                },
+                "batch_size": 1,
+                "cfg_scale": 4.5,
+                "scheduler": "automatic",
+                "mask": "https://iomzilgmkxhrgzkzmntc.supabase.co/storage/v1/object/public/generated/assets/mask2.png",
+                "comments": {},
+                "denoising_strength": 0.8,
+                "disable_extra_networks": False,
+                "do_not_save_grid": False,
+                "do_not_save_samples": False,
+                "height": 1024,
+                "image_cfg_scale": 3.5,
+                "init_images": ["https://iomzilgmkxhrgzkzmntc.supabase.co/storage/v1/object/public/generated/assets/inpaint_jpg.jpg"],
+                "initial_noise_multiplier": 1,
+                "inpaint_full_res_padding": 32,
+                "inpainting_fill": 1,
+                "inpainting_mask_invert": 0,
+                "mask_blur": 4,
+                "mask_blur_x": 4,
+                "mask_blur_y": 4,
+                "n_iter": 1,
+                "negative_prompt": "angry, sad, bad mouth",
+                "override_settings": {},
+                "override_settings_restore_afterwards": True,
+                "prompt": "women, long hair, <lora:ip-adapter-faceid-plusv2_sdxl_lora:0.8>",
+                "resize_mode": 0,
+                "restore_faces": False,
+                "s_churn": 0,
+                "s_min_uncond": 0,
+                "s_noise": 1,
+                "s_tmax": None,
+                "s_tmin": 0,
+                "sampler_name": "Euler a",
+                "script_args": [],
+                "script_name": None,
+                "seed": -1,
+                "seed_resize_from_h": -1,
+                "seed_resize_from_w": -1,
+                "steps": 30,
+                "styles": [],
+                "subseed": -1,
+                "subseed_strength": 0,
+                "tiling": False,
+                "width": 1024,
+                "override_settings": {
+                    "CLIP_stop_at_last_layers": 2,
+                },
+                "override_settings_restore_afterwards": True,
+            },
+        },
+    }
+
+    def send_single_request(request_number):
+        logger.info(f"Sending warm-up request #{request_number}")
+        response = send_post_request("sdapi/v1/img2img", warmup_payload["input"]["payload"], f"warmup_{request_number}")
+        
+        if response.status_code == 200:
+            logger.info(f"Warm-up request #{request_number} completed successfully")
+        else:
+            logger.error(f"Warm-up request #{request_number} failed. Status code: {response.status_code}")
+            logger.error(f"Response content: {response.text}")
+
+    # Send first warm-up request
+    send_single_request(1)
+
+    # Send second warm-up request
+    send_single_request(2)
+
+
+
 def handler(job):
     validated_input = validate_input(job)
 
@@ -237,6 +354,7 @@ def handler(job):
 
 if __name__ == "__main__":
     wait_for_service(f'{BASE_URI}/sdapi/v1/sd-models')
+    send_warmup_request()
     logger.info('A1111 Stable Diffusion API is ready')
     logger.info('Starting RunPod Serverless...')
     logger.info('Test - Rami')
