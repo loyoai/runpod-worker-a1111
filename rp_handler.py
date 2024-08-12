@@ -41,7 +41,7 @@ def wait_for_service(url):
 
             # Only log every 15 retries so the logs don't get spammed
             if retries % 15 == 0:
-                logger.info('Service not ready yet. Retrying...')
+                logger.info('Service not ready yet. Retrying... humm')
         except Exception as err:
             logger.error(f'Error: {err}')
 
@@ -239,6 +239,7 @@ if __name__ == "__main__":
     wait_for_service(f'{BASE_URI}/sdapi/v1/sd-models')
     logger.info('A1111 Stable Diffusion API is ready')
     logger.info('Starting RunPod Serverless...')
+    logger.info('Test - Rami')
     runpod.serverless.start(
         {
             'handler': handler
